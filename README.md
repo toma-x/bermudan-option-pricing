@@ -14,9 +14,10 @@ Traditional Monte Carlo methods suffer from the high dimensionality of the stopp
 
 We assume that the underlying asset price, $S(t)$, follows a geometric Brownian motion under the risk-neutral probability measure. The underlying asset is described by the following stochastic differential equation given by the Black-Scholes model:
 
-```math
+$$
+\displaystyle
 dS(t) = rS(t)dt + \sigma S(t)dW(t),
-```
+$$
 
 where:
 
