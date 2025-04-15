@@ -74,7 +74,6 @@ The random tree method approximates the continuation value $\Huge C_i(S)$ using 
 1.  **High Estimator** $\Huge \hat{V}_i^{j_1\cdots j_i}$: The high estimator is intentionally biased *upward*.  This bias arises from using *all* of the $\Huge b$ paths to estimate the continuation value. In effect, the holder is assumed to know all the future stock prices and makes the optimal decision based on these future prices. This results in overestimating the continuation value and therefore the option price. The recursive definition is as follows:
 
     $$
-    \Huge
     \begin{cases}
     \hat{V}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
     \hat{V}_i^{j_1\cdots j_i} = \max\left\{h_i(X_i^{j_1\cdots j_i}), \frac{1}{b}\sum_{j=1}^b \hat{V}_{i+1}^{j_1\cdots j_ij}\right\}
@@ -103,7 +102,6 @@ The random tree method approximates the continuation value $\Huge C_i(S)$ using 
 3.  **Low Estimator** $\Huge \hat{v}_i^{j_1\cdots j_i}$: The low estimator, conversely, is intentionally biased *downward*.  This bias is achieved by excluding one path when making the exercise decision.  In other words, the decision to exercise at time $\Huge t_i$ is made based on the *average* continuation value over *all but one* of the $b$ branches. The holder makes the decision without all the information. This leads to an underestimation of the true continuation value and, therefore, a lower estimate of the option price. The recursive definition is:
 
     $$
-    \Huge
     \begin{cases}
     \hat{v}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
     \hat{v}_i^{j_1\cdots j_i} = \frac{1}{b}\sum_{k=1}^b
