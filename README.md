@@ -1,5 +1,7 @@
 # **Nested Monte Carlo for Bermudan Option Valuation**
 
+![Graph method for Monte-Carlo Bermudan option valuation](output.gif "Graph method for Monte-Carlo Bermudan option valuation")
+
 ## 1. Introduction
 
 Bermudan options are financial derivatives that grant the holder the right, but not the obligation, to exercise the option at a finite set of pre-specified dates. This places them between European options (exercisable only at maturity) and American options (exercisable at any time before maturity). The valuation of Bermudan options presents a significant computational challenge, as it requires solving an optimal stopping problem. The holder must decide, at each potential exercise date, whether to exercise the option immediately or to continue holding it, hoping for more favorable market conditions in the future. This decision-making process depends on the expected future value of the option, which is itself contingent on future market movements. This "optimal stopping" nature of Bermudan option pricing makes closed-form solutions generally unavailable, necessitating numerical methods like Monte Carlo simulation.
