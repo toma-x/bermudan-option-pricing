@@ -73,64 +73,65 @@ The random tree method approximates the continuation value $\Huge C_i(S)$ using 
 
 1.  **High Estimator** $\Huge \hat{V}_i^{j_1\cdots j_i}$: The high estimator is intentionally biased *upward*.  This bias arises from using *all* of the $\Huge b$ paths to estimate the continuation value. In effect, the holder is assumed to know all the future stock prices and makes the optimal decision based on these future prices. This results in overestimating the continuation value and therefore the option price. The recursive definition is as follows:
 
-	$
-	\begin{cases}
-	\hat{V}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
-	\hat{V}_i^{j_1\cdots j_i} = \max\left\{h_i(X_i^{j_1\cdots j_i}), \frac{1}{b}\sum_{j=1}^b \hat{V}_{i+1}^{j_1\cdots j_ij}\right\}
-	\end{cases}
-	$
 
-    where $\Huge X_i^{j_1\cdots j_i}$ represents the simulated asset price at time $\Huge t_i$ along path $\Huge j_1, \dots, j_i$.  The high estimator at time $\Huge t_i$ is the maximum of the immediate exercise value and the average of the high estimators at the next time step, $\Huge t_{i+1}$, along each of the $\Huge b$ branches.  The provided Python code accurately implements this:
+$$
+\begin{cases}
+\hat{V}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
+\hat{V}_i^{j_1\cdots j_i} = \max\left\{h_i(X_i^{j_1\cdots j_i}), \frac{1}{b}\sum_{j=1}^b \hat{V}_{i+1}^{j_1\cdots j_ij}\right\}
+\end{cases}
+$$
 
-    ```python
-    def high_estimator(x: float, # current state
-                       i: int, # current level, 0 <= i <= m
-                       b: int, # branching factor
-                       m: int, # number of exercise opportunities
-    ):
-        if i == m:
-            return h(m, x)
+where $\Huge X_i^{j_1\cdots j_i}$ represents the simulated asset price at time $\Huge t_i$ along path $\Huge j_1, \dots, j_i$.  The high estimator at time $\Huge t_i$ is the maximum of the immediate exercise value and the average of the high estimators at the next time step, $\Huge t_{i+1}$, along each of the $\Huge b$ branches.  The provided Python code accurately implements this:
 
-        successors = [X(x, i+1) for _ in range(b)] # generate b successors
-        values = [high_estimator(next_x, i+1, b, m) for next_x in successors]
+```python
+def high_estimator(x: float, # current state
+	       i: int, # current level, 0 <= i <= m
+	       b: int, # branching factor
+	       m: int, # number of exercise opportunities
+):
+if i == m:
+    return h(m, x)
 
-        return max(h(i, x), np.mean(values))
-    ```
+successors = [X(x, i+1) for _ in range(b)] # generate b successors
+values = [high_estimator(next_x, i+1, b, m) for next_x in successors]
 
-    The function recursively calculates the high estimator. At each step, it generates $\Huge b$ successors (future asset prices) and calculates the high estimator for each successor. It then takes the maximum of the immediate exercise value and the average of these successor estimators.
+return max(h(i, x), np.mean(values))
+```
+
+The function recursively calculates the high estimator. At each step, it generates $\Huge b$ successors (future asset prices) and calculates the high estimator for each successor. It then takes the maximum of the immediate exercise value and the average of these successor estimators.
 
 3.  **Low Estimator** $\Huge \hat{v}_i^{j_1\cdots j_i}$: The low estimator, conversely, is intentionally biased *downward*.  This bias is achieved by excluding one path when making the exercise decision.  In other words, the decision to exercise at time $\Huge t_i$ is made based on the *average* continuation value over *all but one* of the $b$ branches. The holder makes the decision without all the information. This leads to an underestimation of the true continuation value and, therefore, a lower estimate of the option price. The recursive definition is:
 
-    $
-    \begin{cases}
-    \hat{v}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
-    \hat{v}_i^{j_1\cdots j_i} = \frac{1}{b}\sum_{k=1}^b
-        \begin{cases}
-            h_i(X_i^{j_1\cdots j_i}), & \text{if } \frac{1}{b-1}\sum_{j \neq k} \hat{v}_{i+1}^{j_1\cdots j_ij} \leq h_i(X_i^{j_1\cdots j_i}), \\
-            \hat{v}_{i+1}^{j_1\cdots j_ik}, & \text{otherwise}.
-        \end{cases}
-    \end{cases}
-    $
+$$
+\begin{cases}
+\hat{v}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
+\hat{v}_i^{j_1\cdots j_i} = \frac{1}{b}\sum_{k=1}^b
+\begin{cases}
+    h_i(X_i^{j_1\cdots j_i}), & \text{if } \frac{1}{b-1}\sum_{j \neq k} \hat{v}_{i+1}^{j_1\cdots j_ij} \leq h_i(X_i^{j_1\cdots j_i}), \\
+    \hat{v}_{i+1}^{j_1\cdots j_ik}, & \text{otherwise}.
+\end{cases}
+\end{cases}
+$$
 
-    At each node, the low estimator considers each branch $\Huge k$ in turn.  It calculates the average continuation value over all other branches ($\Huge j \neq k$).  If this average continuation value is *less than* the immediate exercise value, then it assumes the option is exercised at time $\Huge t_i$ along branch $\Huge k$. Otherwise, it assumes the option is held and uses the low estimator along branch $\Huge k$. The overall low estimator is then the average of these decisions across all branches. This carefully implemented "leaving one out" approach is what generates the low bias.
+At each node, the low estimator considers each branch $\Huge k$ in turn.  It calculates the average continuation value over all other branches ($\Huge j \neq k$).  If this average continuation value is *less than* the immediate exercise value, then it assumes the option is exercised at time $\Huge t_i$ along branch $\Huge k$. Otherwise, it assumes the option is held and uses the low estimator along branch $\Huge k$. The overall low estimator is then the average of these decisions across all branches. This carefully implemented "leaving one out" approach is what generates the low bias.
 
-    ```python
-    def low_estimator(x: float, # current state
-                       i: int, # current level, 0 <= i <= m
-                       b: int, # branching factor
-                       m: int, # number of exercise opportunities
-    ):
-        if i == m:
-            return h(m, x)
+```python
+def low_estimator(x: float, # current state
+	       i: int, # current level, 0 <= i <= m
+	       b: int, # branching factor
+	       m: int, # number of exercise opportunities
+):
+if i == m:
+    return h(m, x)
 
-        successors = [X(x, i+1) for _ in range(b)] # generate b successors
-        values = [high_estimator(next_x, i+1, b, m) for next_x in successors]
-        mask = (np.sum(values) - values)/(b-1) <= h_value
+successors = [X(x, i+1) for _ in range(b)] # generate b successors
+values = [high_estimator(next_x, i+1, b, m) for next_x in successors]
+mask = (np.sum(values) - values)/(b-1) <= h_value
 
-        return max(h(i, x), np.mean(h_value * mask + values * ~mask))
-    ```
+return max(h(i, x), np.mean(h_value * mask + values * ~mask))
+```
 
-    Again, the function recursively calculates the low estimator.  The crucial part is the calculation of `mask`, which determines whether to exercise along a given path based on the average continuation value of the other paths.
+Again, the function recursively calculates the low estimator.  The crucial part is the calculation of `mask`, which determines whether to exercise along a given path based on the average continuation value of the other paths.
 
 The high and low estimators provide a natural way to construct confidence intervals for the Bermudan option price.  Since the true price lies between the high and low estimates, we can use the sample means and standard deviations of these estimators to construct a confidence interval that, with a certain probability (e.g., 95%), contains the true option price.  Importantly, the random tree method converges as $\Huge b$ increases.
 
