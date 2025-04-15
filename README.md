@@ -16,9 +16,8 @@ We assume that the underlying asset price, $S(t)$, follows a geometric Brownian 
 
 
 $$
-{\Huge
+\Huge
 dS(t) = rS(t)dt + \sigma S(t)dW(t),
-}
 $$
 
 where:
