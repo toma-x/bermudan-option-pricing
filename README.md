@@ -45,7 +45,7 @@ This equation states that the value of the Bermudan option is the highest expect
 To find the optimal exercise strategy and value, we use dynamic programming, working backward from the expiration date.  The value function $V_i(S)$ at time $t_i$ represents the value of the option if it is still alive at that time and the asset price is $S$. It satisfies the following recursive equation:
 
 $$
-V_i(S) = \max\left\{h_i(S), C_i(S)\right\},
+V_i(S) = \max{h_i(S), C_i(S)},
 $$
 
 where:
