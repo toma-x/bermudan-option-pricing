@@ -74,12 +74,14 @@ The random tree method approximates the continuation value $\Huge C_i(S)$ using 
 1.  **High Estimator** $\Huge \hat{V}_i^{j_1\cdots j_i}$: The high estimator is intentionally biased *upward*.  This bias arises from using *all* of the $\Huge b$ paths to estimate the continuation value. In effect, the holder is assumed to know all the future stock prices and makes the optimal decision based on these future prices. This results in overestimating the continuation value and therefore the option price. The recursive definition is as follows:
 
 
-$$
+$
+\begin{equation}
 \begin{cases}
 \hat{V}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
 \hat{V}_i^{j_1\cdots j_i} = \max\left\{h_i(X_i^{j_1\cdots j_i}), \frac{1}{b}\sum_{j=1}^b \hat{V}_{i+1}^{j_1\cdots j_ij}\right\}
 \end{cases}
-$$
+\end{equation}
+$
 
 where $\Huge X_i^{j_1\cdots j_i}$ represents the simulated asset price at time $\Huge t_i$ along path $\Huge j_1, \dots, j_i$.  The high estimator at time $\Huge t_i$ is the maximum of the immediate exercise value and the average of the high estimators at the next time step, $\Huge t_{i+1}$, along each of the $\Huge b$ branches.  The provided Python code accurately implements this:
 
@@ -102,7 +104,8 @@ The function recursively calculates the high estimator. At each step, it generat
 
 3.  **Low Estimator** $\Huge \hat{v}_i^{j_1\cdots j_i}$: The low estimator, conversely, is intentionally biased *downward*.  This bias is achieved by excluding one path when making the exercise decision.  In other words, the decision to exercise at time $\Huge t_i$ is made based on the *average* continuation value over *all but one* of the $b$ branches. The holder makes the decision without all the information. This leads to an underestimation of the true continuation value and, therefore, a lower estimate of the option price. The recursive definition is:
 
-$$
+$
+\begin{equation}
 \begin{cases}
 \hat{v}_m^{j_1\cdots j_m} = h_m(X_m^{j_1\cdots j_m}) \\
 \hat{v}_i^{j_1\cdots j_i} = \frac{1}{b}\sum_{k=1}^b
@@ -111,7 +114,8 @@ $$
     \hat{v}_{i+1}^{j_1\cdots j_ik}, & \text{otherwise}.
 \end{cases}
 \end{cases}
-$$
+\end{equation}
+$
 
 At each node, the low estimator considers each branch $\Huge k$ in turn.  It calculates the average continuation value over all other branches ($\Huge j \neq k$).  If this average continuation value is *less than* the immediate exercise value, then it assumes the option is exercised at time $\Huge t_i$ along branch $\Huge k$. Otherwise, it assumes the option is held and uses the low estimator along branch $\Huge k$. The overall low estimator is then the average of these decisions across all branches. This carefully implemented "leaving one out" approach is what generates the low bias.
 
